@@ -1,0 +1,18 @@
+.list {
+    margin-top: 10px;
+}
+
+.item {
+    text-transform: capitalize;
+    font-size: 20px;
+}
+
+.item:not(:last-child) {
+    margin-bottom: 13px;
+}
+
+.btn {
+    font-size: 14px;
+    border: 1px solid black;
+    border-radius: 4px;
+}
