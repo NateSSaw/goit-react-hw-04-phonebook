@@ -1,71 +1,38 @@
-import { PureComponent } from 'react';
+import { useState, useEffect } from 'react';
 import Form from 'components/Form/Form';
 import Contacts from 'components/Contacts/Contacts';
 import Filter from 'components/Filter/Filter';
 
-export default class App extends PureComponent {
-  state = {
-    contacts: [],
-    filter: '',
-    isDelete: false,
-    isCreate: false,
-  };
-  componentDidMount() {
-    if (localStorage.getItem('contact'))
-      this.setState({
-        contacts: JSON.parse(localStorage.getItem('contact')),
-      });
-  }
+export default function App() {
+  const [contacts, setContacts] = useState([]);
+  const [filter, setFilter] = useState('');
 
-  componentDidUpdate(_, prevState) {
-    if (prevState.contacts.length > this.state.contacts.length) {
-      localStorage.setItem('contact', JSON.stringify(this.state.contacts));
-      this.setState({
-        isDelete: true,
-      });
-      setTimeout(() => {
-        this.setState({ isDelete: false });
-      }, 1500);
-    }
-    if (prevState.contacts.length < this.state.contacts.length) {
-      localStorage.setItem('contact', JSON.stringify(this.state.contacts));
-      this.setState({
-        isCreate: true,
-      });
-      setTimeout(() => {
-        this.setState({ isCreate: false });
-      }, 1500);
-    }
-  }
+  useEffect(() => {
+    const savedContacts = JSON.parse(localStorage.getItem('contacts'));
+    if (savedContacts) setContacts(savedContacts);
+  }, []);
 
-  addContact = newContact => {
-    this.setState(prevState => {
-      return {
-        contacts: [...prevState.contacts, newContact],
-      };
+  const addContact = newContact => {
+    setContacts(prev => {
+      const newContacts = [...prev, newContact];
+
+      localStorage.setItem('contacts', JSON.stringify(newContacts));
+
+      return newContacts;
     });
   };
 
-  deleteContact = id => {
-    this.setState(prevState => {
-      const updatedContacts = prevState.contacts.filter(
-        contact => contact.id !== id
-      );
+  const deleteContact = id => {
+    setContacts(prev => {
+      const updatedContacts = prev.filter(contact => contact.id !== id);
 
-      return { contacts: updatedContacts };
+      localStorage.setItem('contacts', JSON.stringify(updatedContacts));
+
+      return updatedContacts;
     });
   };
 
-  updateFilter = value => {
-    this.setState({ filter: value });
-  };
-
-  getFilterValue = () => {
-    return this.state.filter;
-  };
-
-  filterContacts = () => {
-    const { contacts, filter } = this.state;
+  const updateFilter = () => {
     const filteredContacts = contacts.filter(contact =>
       contact.name.toLowerCase().includes(filter.toLowerCase())
     );
@@ -73,29 +40,17 @@ export default class App extends PureComponent {
     return filter === '' ? contacts : filteredContacts;
   };
 
-  render() {
-    return (
-      <div>
-        <h1>Phonebook</h1>
-        <Form
-          contacts={this.state.contacts}
-          addContact={this.addContact}
-          updateState={this.updateState}
-        />
-        {this.state.contacts.length !== 0 && (
-          <div>
-            <h2>Contacts</h2>
-            <Filter
-              getFilterValue={this.getFilterValue}
-              updateFilter={this.updateFilter}
-            />
-            <Contacts
-              deleteContact={this.deleteContact}
-              contacts={this.filterContacts()}
-            />
-          </div>
-        )}
-      </div>
-    );
-  }
+  return (
+    <div>
+      <h1>Phonebook</h1>
+      <Form contacts={contacts} addContact={addContact} />
+      {contacts.length !== 0 && (
+        <div>
+          <h2>Contacts</h2>
+          <Filter getFilterValue={filter} updateFilter={setFilter} />
+          <Contacts deleteContact={deleteContact} contacts={updateFilter()} />
+        </div>
+      )}
+    </div>
+  );
 }

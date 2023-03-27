@@ -1,15 +1,21 @@
-import {Component} from 'react';
-import css from 'components/Filter/Filter.module.css'
+import css from 'components/Filter/Filter.module.css';
 
-export default class Filter extends Component {
-    onChange = (e) => {
-        const { updateFilter } = this.props;
-        
-        updateFilter(e.target.value);
-    }
+export default function Filter({ updateFilter, filterValue }) {
+  const onChange = e => {
+    updateFilter(e.target.value);
+  };
 
-    render() {
-        const { getFilterValue } = this.props;
-        return <div><label className={css.label}>Find contacts by name<input type="text" className={css.input} onChange={this.onChange} value={getFilterValue() } /></label></div>
-    }
+  return (
+    <div>
+      <label className={css.label}>
+        Find contacts by name
+        <input
+          type="text"
+          className={css.input}
+          onChange={onChange}
+          value={filterValue}
+        />
+      </label>
+    </div>
+  );
 }
